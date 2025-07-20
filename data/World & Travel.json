@@ -1,0 +1,85 @@
+{
+  "realm": "World & Travel",
+  "quests": [
+    {
+      "title": "Globetrotter Stops",
+      "hint": "Iconic cities and countries across the globe.",
+      "words": [
+        "paris",
+        "chile",
+        "japan",
+        "spain",
+        "india",
+        "egypt",
+        "kenya",
+        "milan",
+        "china",
+        "hanoi"
+      ]
+    },
+    {
+      "title": "Nature Escapes",
+      "hint": "Natural travel spots and geographic features.",
+      "words": [
+        "beach",
+        "caves",
+        "dunes",
+        "plain",
+        "field",
+        "oasis",
+        "fjord",
+        "cliff",
+        "ridge",
+        "valle"
+      ]
+    },
+    {
+      "title": "On the Move",
+      "hint": "Modes of transport used in travel.",
+      "words": [
+        "plane",
+        "train",
+        "truck",
+        "bikes",
+        "ferry",
+        "scoot",
+        "pedal",
+        "skate",
+        "metro",
+        "jeeps"
+      ]
+    },
+    {
+      "title": "Travel Essentials",
+      "hint": "Must-haves and tools for travel and exploration.",
+      "words": [
+        "guide",
+        "maple",
+        "bagel",
+        "compa",
+        "lodge",
+        "tents",
+        "boots",
+        "snack",
+        "blank",
+        "watch"
+      ]
+    },
+    {
+      "title": "Airport Rush",
+      "hint": "Words tied to flying, terminals, and airport chaos.",
+      "words": [
+        "carry",
+        "check",
+        "delay",
+        "board",
+        "lines",
+        "gates",
+        "crowd",
+        "pilot",
+        "radar",
+        "wings"
+      ]
+    }
+  ]
+}
