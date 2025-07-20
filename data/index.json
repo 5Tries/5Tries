@@ -1,0 +1,12 @@
+{
+  "realms": [
+    {
+      "name": "Nature & Living Things",
+      "file": "realm_nature_living.json"
+    },
+    {
+      "name": "Food & Drinks",
+      "file": "realm_food_drinks.json"
+    }
+  ]
+}
