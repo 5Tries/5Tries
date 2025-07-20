@@ -1,0 +1,85 @@
+{
+  "realm": "Urban Life",
+  "quests": [
+    {
+      "title": "Street Smarts",
+      "hint": "Words inspired by daily city life, slang, and streetwise terms",
+      "words": [
+        "slang",
+        "alley",
+        "slick",
+        "hustle",
+        "rebel",
+        "grime",
+        "badge",
+        "scamz",
+        "metro",
+        "flyer"
+      ]
+    },
+    {
+      "title": "City Sounds",
+      "hint": "Words associated with urban noise and auditory life",
+      "words": [
+        "honks",
+        "siren",
+        "music",
+        "crowd",
+        "chant",
+        "alarm",
+        "bells",
+        "radio",
+        "tunes",
+        "yells"
+      ]
+    },
+    {
+      "title": "Concrete Jungle",
+      "hint": "Words tied to the cityscape, buildings, and dense environments",
+      "words": [
+        "tower",
+        "block",
+        "plaza",
+        "urban",
+        "dense",
+        "brick",
+        "roads",
+        "fence",
+        "signs",
+        "drains"
+      ]
+    },
+    {
+      "title": "Metro Moves",
+      "hint": "Transit-related urban words and transportation terms",
+      "words": [
+        "train",
+        "metro",
+        "ferry",
+        "bikes",
+        "route",
+        "drive",
+        "pedal",
+        "taxi",
+        "tracks",
+        "lanes"
+      ]
+    },
+    {
+      "title": "Neon Nights",
+      "hint": "Nightlife, lights, and after-dark vibes in the city",
+      "words": [
+        "party",
+        "clubs",
+        "dance",
+        "drink",
+        "neon",
+        "disco",
+        "laser",
+        "night",
+        "limos",
+        "barsy"
+      ]
+    }
+  ]
+}
