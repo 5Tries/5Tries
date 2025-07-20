@@ -1,0 +1,252 @@
+{
+  "Nature & Living Things": {
+    "Colors": {
+      "Shades of Nature": [
+        "green",
+        "amber",
+        "grape",
+        "cedar",
+        "mossy",
+        "ochre",
+        "olive",
+        "terra",
+        "wheat",
+        "khaki"
+      ],
+      "Timeless Tones": [
+        "ivory",
+        "flint",
+        "honey",
+        "ebony",
+        "foggy",
+        "sepia",
+        "camel",
+        "grain",
+        "stone",
+        "matte"
+      ],
+      "Soft & Sweet": [
+        "blush",
+        "camel",
+        "azure",
+        "beige",
+        "linen",
+        "lilac",
+        "plush",
+        "cream",
+        "glowy",
+        "dusty"
+      ],
+      "Earth & Dust": [
+        "smoke",
+        "toast",
+        "cocoa",
+        "brown",
+        "spice",
+        "amber",
+        "metal",
+        "moody",
+        "glass",
+        "flame"
+      ],
+      "Glow & Shine": [
+        "silky",
+        "shine",
+        "lemon",
+        "glint",
+        "glaze",
+        "satin",
+        "royal",
+        "clear",
+        "rouge",
+        "white"
+      ]
+    },
+    "Animals": {
+      "Wild and Free": [
+        "lemur",
+        "otter",
+        "pride",
+        "snake",
+        "swarm",
+        "frogs",
+        "worms",
+        "herds",
+        "gnats",
+        "koala"
+      ],
+      "Feathers & Fur": [
+        "finch",
+        "foals",
+        "quail",
+        "geese",
+        "larks",
+        "fawns",
+        "shoal",
+        "brood",
+        "pupae",
+        "flock"
+      ],
+      "Farmyard Friends": [
+        "horse",
+        "sheep",
+        "civet",
+        "swine",
+        "calfs",
+        "dingo",
+        "camel",
+        "minks",
+        "packy",
+        "crabs"
+      ],
+      "Predators & Packs": [
+        "shark",
+        "tiger",
+        "bison",
+        "skunk",
+        "hyena",
+        "drake",
+        "sloth",
+        "zebra",
+        "jelly",
+        "newts"
+      ],
+      "Rare Creatures": [
+        "panda",
+        "moose",
+        "cubby",
+        "bears",
+        "dingo",
+        "lemur",
+        "minks",
+        "civet",
+        "snake",
+        "otter"
+      ]
+    },
+    "Fruits & Vegetables": {
+      "Juicy Picks": [
+        "peach",
+        "kiwis",
+        "papaw",
+        "apple",
+        "grape",
+        "pluot",
+        "melon",
+        "guava",
+        "dates",
+        "lemon"
+      ],
+      "Garden Harvest": [
+        "chive",
+        "nance",
+        "cress",
+        "cider",
+        "beets",
+        "leeks",
+        "onion",
+        "laver",
+        "mooli",
+        "pulpy"
+      ],
+      "Tropical Treats": [
+        "mango",
+        "lyche",
+        "daubo",
+        "lucma",
+        "mammy",
+        "cigua",
+        "calal",
+        "durio",
+        "pomum",
+        "feijo"
+      ],
+      "Roots & Leaves": [
+        "chard",
+        "lambs",
+        "basna",
+        "amole",
+        "frond",
+        "carob",
+        "pruno",
+        "prune",
+        "malos",
+        "mamey"
+      ],
+      "Berry Bunch": [
+        "plums",
+        "berry",
+        "arbor",
+        "jambu",
+        "negus",
+        "cacao",
+        "logan",
+        "kelps",
+        "gourd",
+        "pomme"
+      ]
+    },
+    "Flowers": {
+      "Garden Blooms": [
+        "camas",
+        "clove",
+        "lilac",
+        "blush",
+        "bloom",
+        "plant",
+        "pinks",
+        "periw",
+        "heath",
+        "aster"
+      ],
+      "Meadow Magic": [
+        "pansy",
+        "daisy",
+        "globe",
+        "flora",
+        "phlox",
+        "dills",
+        "siris",
+        "spath",
+        "posie",
+        "drake"
+      ],
+      "Exotic Petals": [
+        "tulip",
+        "zizia",
+        "vinca",
+        "umbel",
+        "zamia",
+        "hydra",
+        "anise",
+        "nigra",
+        "fleur",
+        "sumac"
+      ],
+      "Soft Blossoms": [
+        "floss",
+        "roses",
+        "amary",
+        "basil",
+        "laura",
+        "weeds",
+        "dwarf",
+        "abise",
+        "viola",
+        "petal"
+      ],
+      "Forest Florals": [
+        "broom",
+        "arbor",
+        "rheum",
+        "spike",
+        "crown",
+        "stalk",
+        "acara",
+        "lotus",
+        "lupin",
+        "sisal"
+      ]
+    }
+  }
+}
