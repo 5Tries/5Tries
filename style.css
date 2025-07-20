@@ -1,0 +1,113 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.title-score-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* space between title and coin count */
+}
+
+.game-title {
+  font-size: 2.5em;
+  font-weight: normal;
+  color: red;
+  margin: 0;
+}
+
+.coin-score {
+  font-size: 1.2em;
+  color: #444;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(5, 60px);
+  gap: 10px;
+  justify-content: center;
+  margin: 20px auto;
+}
+
+.cell {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  border: 2px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.correct {
+  background: green;
+  color: white;
+}
+
+.present {
+  background: gold;
+  color: white;
+}
+
+.absent {
+  background: #888;
+  color: white;
+}
+
+#keyboard {
+  margin: 20px auto;
+}
+
+.keyboard-row {
+  margin-bottom: 8px;
+}
+
+.key {
+  padding: 10px 14px;
+  margin: 2px;
+  font-size: 18px;
+  border: none;
+  border-radius: 4px;
+  background: #eee;
+  cursor: pointer;
+}
+
+.key.absent {
+  background: #bbb;
+  color: white;
+}
+
+.key.correct {
+  background: green;
+  color: white;
+}
+
+.key.present {
+  background: goldenrod;
+  color: white;
+}
+
+.wide {
+  padding: 10px 20px;
+}
+
+#message {
+  margin: 10px;
+  font-weight: bold;
+  color: red;
+}
+
+#hints button {
+  margin: 10px 5px;
+  padding: 8px 16px;
+}
