@@ -1,25 +1,30 @@
 {
-  "realm": "Food & Drinks",
+  "realm": "🍽️ Food & Drinks",
   "quests": [
     {
-      "name": "Garden Bites",
-      "words": ["apple", "beets", "chard", "cider", "cress", "dates", "guava", "leeks", "melon", "onion"]
+      "title": "Garden Bites 🥕",
+      "hint": "Crunchy greens and earthy picks from the veggie patch.",
+      "words": ["amole", "beets", "chard", "chive", "cider", "frond", "kelps", "leeks", "mooli", "onion"]
     },
     {
-      "name": "Fruit Splash",
-      "words": ["grape", "peach", "plums", "lyche", "mango", "papaw", "pears", "kiwis", "prune", "guava"]
+      "title": "Fruit Splash 🍇",
+      "hint": "Fruity flavors that burst with natural sweetness.",
+      "words": ["apple", "cacao", "grape", "guava", "jambu", "kiwis", "lemon", "mango", "peach", "prune"]
     },
     {
-      "name": "Juicy Drops",
-      "words": ["cacao", "cigua", "feijo", "lucma", "mirab", "nance", "nashi", "pomum", "pulpy", "cider"]
+      "title": "Juicy Drops 🍑",
+      "hint": "Sip and savor the juiciest picks of the bunch.",
+      "words": ["cider", "guava", "peach", "lemon", "grape", "apple", "cacao", "mango", "prune", "jambu"]
     },
     {
-      "name": "Savory Pantry",
-      "words": ["amole", "arbor", "carob", "chive", "kelps", "laver", "mooli", "olive", "pruno", "pluot"]
+      "title": "Savory Pantry 🍲",
+      "hint": "Staple flavors and rich ingredients from your kitchen shelf.",
+      "words": ["cacao", "cider", "kelps", "chive", "onion", "guava", "mooli", "leeks", "apple", "prune"]
     },
     {
-      "name": "Sweet Treats",
-      "words": ["berry", "jambu", "mammy", "mamey", "pomme", "basna", "daubo", "durio", "logan", "frond"]
+      "title": "Sweet Treats 🍭",
+      "hint": "Nature’s candy and luscious indulgences.",
+      "words": ["cider", "prune", "apple", "guava", "mango", "peach", "lemon", "honey", "dates", "cacao"]
     }
   ]
 }
