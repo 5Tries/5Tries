@@ -1,5 +1,5 @@
 {
-  "realmName": "Starter Pack",
+  "realm": "Starter Pack",
   "ensureUniqueAcrossQuests": true,
   "quests": [
     {
