@@ -1,6 +1,5 @@
 {
   "realm": "Starter Pack",
-  "ensureUniqueAcrossQuests": true,
   "quests": [
     {
       "title": "Primary Hues",
