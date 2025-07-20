@@ -1,0 +1,31 @@
+{
+  "realmName": "Starter Pack",
+  "ensureUniqueAcrossQuests": true,
+  "quests": [
+    {
+      "title": "Primary Hues",
+      "hint": "Basic colors",
+      "words": ["white", "black", "green", "brown", "azure", "coral", "ivory", "amber", "pearl", "beige"]
+    },
+    {
+      "title": "Furry Friends",
+      "hint": "Common animals",
+      "words": ["tiger", "zebra", "rhino", "koala", "otter", "mouse", "horse", "sheep", "goose", "shark"]
+    },
+    {
+      "title": "Sweet Treats",
+      "hint": "Sweet foods",
+      "words": ["candy", "sugar", "honey", "donut", "cream", "fudge", "cocoa", "syrup", "pecan", "mints"]
+    },
+    {
+      "title": "Home Staples",
+      "hint": "Everyday items",
+      "words": ["bread", "water", "beans", "pasta", "apple", "spice", "flour", "peach", "spoon", "olive"]
+    },
+    {
+      "title": "Action Verbs",
+      "hint": "Things you can do",
+      "words": ["write", "learn", "dance", "laugh", "think", "smile", "drink", "drive", "paint", "sleep"]
+    }
+  ]
+}
