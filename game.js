@@ -1,164 +1,78 @@
-const words = ["lemon", "grape", "honey", "clear", "amber"];
-let targetWord = words[Math.floor(Math.random() * words.length)];
-let currentGuess = ["", "", "", "", ""];
-let currentRow = 0;
-let attemptsLeft = 3;
-let coins = 0;
-let revealedLetters = {}; // Locked only for current row
-let usedLetters = new Set();
-let gameActive = true;
+// script.js
 
-const board = document.getElementById("board");
-const keyboard = document.getElementById("keyboard");
-const message = document.getElementById("message");
-const score = document.getElementById("score");
-const attempts = document.getElementById("attempts");
-const revealBtn = document.getElementById("revealLetterBtn");
-const removeBtn = document.getElementById("removeLetterBtn");
+// 1) your small target list
+const words = ["lemon","grape","honey","clear","amber"].map(w=>w.toUpperCase());
 
-function initBoard() {
-  board.innerHTML = "";
-  for (let i = 0; i < 25; i++) {
-    const cell = document.createElement("div");
-    cell.className = "cell";
-    board.appendChild(cell);
-  }
-}
+// 2) dictionary set
+let validWords = new Set();
 
-function updateScore() {
-  score.textContent = `🪙${coins}`;
-}
+const maxGuesses       = 5;
+const maxDailyAttempts = 3;
+const hintCosts        = { reveal:5, remove:3, refill:10 };
 
-function updateAttempts() {
-  attempts.innerHTML = "🔁".repeat(attemptsLeft);
-}
+let targetWord, currentGuess, currentRow, attemptsLeft, coins;
+let revealedLetters, gameActive;
 
-function updateBoard() {
-  for (let i = 0; i < 5; i++) {
-    const cell = board.children[currentRow * 5 + i];
-    cell.textContent = currentGuess[i]?.toUpperCase() || "";
-    cell.className = "cell";
-    if (revealedLetters[i]) {
-      cell.classList.add("correct");
-    }
-  }
-}
+// DOM refs
+const loadingScreen   = document.getElementById("loadingScreen");
+const loadingProgress = document.getElementById("loadingProgress");
+const startBtn        = document.getElementById("startBtn");
+const gameContainer   = document.getElementById("gameContainer");
 
-function showMessage(msg) {
-  message.textContent = msg;
-  setTimeout(() => (message.textContent = ""), 2000);
-}
+const board       = document.getElementById("board");
+const keyboard    = document.getElementById("keyboard");
+const messageEl   = document.getElementById("message");
+const scoreEl     = document.getElementById("score");
+const attemptsEl  = document.getElementById("attempts");
+const revealBtn   = document.getElementById("revealLetterBtn");
+const removeBtn   = document.getElementById("removeLetterBtn");
+const refillBtn   = document.getElementById("refillAttemptBtn");
+const nextBtn     = document.getElementById("nextWordBtn");
 
-function buildKeyboard() {
-  const layout = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
-  keyboard.innerHTML = "";
-  layout.forEach((row, rowIndex) => {
-    const rowDiv = document.createElement("div");
-    rowDiv.className = "keyboard-row";
-    if (rowIndex === 2) addKey(rowDiv, "Enter", "wide");
-    for (let key of row) addKey(rowDiv, key);
-    if (rowIndex === 2) addKey(rowDiv, "←", "wide");
-    keyboard.appendChild(rowDiv);
+// ─── load full 5‑letter dictionary ─────────────────────────────────────────
+async function loadDictionary() {
+  const res  = await fetch(
+    "https://cdn.jsdelivr.net/gh/5Tries/5Tries@main/words_alpha.txt"
+  );
+  const txt  = await res.text();
+  txt.split("\n").forEach(raw=>{
+    const w = raw.trim();
+    if(w.length===5) validWords.add(w.toUpperCase());
   });
 }
 
-function addKey(row, key, extraClass = "") {
-  const keyBtn = document.createElement("button");
-  keyBtn.textContent = key.toUpperCase();
-  keyBtn.className = `key ${extraClass}`;
-  keyBtn.onclick = () => handleKey(key);
-  keyBtn.id = `key-${key}`;
-  row.appendChild(keyBtn);
-}
-
-function handleKey(k) {
-  if (!gameActive) return;
-
-  if (k === "Enter") {
-    if (currentGuess.includes("")) {
-      showMessage("Incomplete word");
-      return;
-    }
-    checkGuess();
-    return;
-  }
-
-  if (k === "←") {
-    for (let i = 4; i >= 0; i--) {
-      if (!revealedLetters[i] && currentGuess[i]) {
-        currentGuess[i] = "";
-        break;
-      }
-    }
-    updateBoard();
-    return;
-  }
-
-  if (/^[a-zA-Z]$/.test(k)) {
-    for (let i = 0; i < 5; i++) {
-      if (!currentGuess[i] && !revealedLetters[i]) {
-        currentGuess[i] = k.toLowerCase();
-        break;
-      }
-    }
-    updateBoard();
-  }
-}
-
-function checkGuess() {
-  const guessWord = currentGuess.join("");
-  const result = Array(5).fill("absent");
-
-  for (let i = 0; i < 5; i++) {
-    if (currentGuess[i] === targetWord[i]) {
-      result[i] = "correct";
-    } else if (targetWord.includes(currentGuess[i])) {
-      result[i] = "present";
-    }
-    usedLetters.add(currentGuess[i]);
-  }
-
-  for (let i = 0; i < 5; i++) {
-    const cell = board.children[currentRow * 5 + i];
-    cell.classList.add(result[i]);
-    const keyBtn = document.getElementById(`key-${currentGuess[i]}`);
-    if (keyBtn && !keyBtn.classList.contains("correct")) {
-      keyBtn.classList.add(result[i]);
-    }
-  }
-
-  if (guessWord === targetWord) {
-    const earned = 5 - (currentRow % 5);
-    coins += earned;
-    updateScore();
-    showMessage(`Correct! +${earned} coins`);
-    setTimeout(nextWord, 1500);
+// ─── daily attempts persistence ────────────────────────────────────────────
+function loadDailyAttempts(){
+  const last = localStorage.getItem("lastReset"), now=Date.now();
+  if(!last|| now - new Date(last).getTime()>=24*60*60*1000){
+    attemptsLeft = maxDailyAttempts;
+    localStorage.setItem("lastReset", new Date().toISOString());
   } else {
-    currentRow++;
-    if (currentRow % 5 === 0) {
-      attemptsLeft--;
-      updateAttempts();
-      if (attemptsLeft === 0) {
-        showMessage(`Out of attempts! Word was: ${targetWord.toUpperCase()}`);
-        gameActive = false;
-        setTimeout(nextWord, 3000);
-        return;
-      }
-    }
-    currentGuess = ["", "", "", "", ""];
-    revealedLetters = {};
-    updateBoard();
+    const stored = parseInt(localStorage.getItem("attemptsLeft"),10);
+    attemptsLeft = isNaN(stored)? maxDailyAttempts: stored;
   }
+  localStorage.setItem("attemptsLeft",attemptsLeft);
+}
+function saveDailyAttempts(){
+  localStorage.setItem("attemptsLeft",attemptsLeft);
 }
 
-function nextWord() {
-  targetWord = words[Math.floor(Math.random() * words.length)];
-  currentGuess = ["", "", "", "", ""];
-  currentRow = 0;
-  attemptsLeft = 3;
+// ─── pick word ─────────────────────────────────────────────────────────────
+function pickWord(){
+  return words[Math.floor(Math.random()*words.length)];
+}
+
+// ─── start & hide loading screen ───────────────────────────────────────────
+function startGame(){
+  loadingScreen.style.display = "none";
+  gameContainer.style.display = "block";
+  // initialize game state
+  coins           = 50;
+  targetWord      = pickWord();
+  currentGuess    = ["","","","",""];
+  currentRow      = 0;
   revealedLetters = {};
-  usedLetters = new Set();
-  gameActive = true;
+  gameActive      = true;
   initBoard();
   buildKeyboard();
   updateBoard();
@@ -166,45 +80,204 @@ function nextWord() {
   updateAttempts();
 }
 
-revealBtn.onclick = () => {
-  if (coins < 5) return showMessage("Not enough coins.");
-  const unrevealed = [];
-  for (let i = 0; i < 5; i++) {
-    if (!revealedLetters[i]) unrevealed.push(i);
-  }
-  if (unrevealed.length > 0) {
-    const rand = unrevealed[Math.floor(Math.random() * unrevealed.length)];
-    revealedLetters[rand] = targetWord[rand];
-    currentGuess[rand] = targetWord[rand];
-    updateBoard();
-    coins -= 5;
-    updateScore();
-  }
-};
+// ─── prepare: load resources then show Start ───────────────────────────────
+async function prepareGame(){
+  // kick off dictionary load
+  await loadDictionary();
+  // show progress bar at 100%
+  loadingProgress.style.width = "100%";
+  // load or reset attempts
+  loadDailyAttempts();
+  // reveal Start button
+  startBtn.style.display = "block";
+}
 
-removeBtn.onclick = () => {
-  if (coins < 3) return showMessage("Not enough coins.");
-  const keyboardLetters = [..."abcdefghijklmnopqrstuvwxyz"];
-  const notInWord = keyboardLetters.filter(
-    l => !targetWord.includes(l) && !document.getElementById(`key-${l}`).classList.contains("absent")
-  );
+startBtn.onclick = startGame;
+prepareGame();  // begin loading on script load
 
-  if (notInWord.length > 0) {
-    const toGray = notInWord[Math.floor(Math.random() * notInWord.length)];
-    const keyBtn = document.getElementById(`key-${toGray}`);
-    if (keyBtn) {
-      keyBtn.classList.add("absent");
+// ─── the rest of your existing game code unchanged ─────────────────────────
+
+// build board
+function initBoard(){
+  board.innerHTML="";
+  for(let i=0;i<25;i++){
+    const cell = document.createElement("div");
+    cell.className="cell";
+    board.appendChild(cell);
+  }
+}
+
+// stats
+function updateScore()   { scoreEl.textContent    = `🪙 ${coins}`; }
+function updateAttempts(){ attemptsEl.textContent = "🔁".repeat(attemptsLeft); }
+
+// render letters
+function updateBoard(){
+  for(let i=0;i<5;i++){
+    const cell = board.children[currentRow*5+i];
+    cell.textContent = currentGuess[i]?.toUpperCase()||"";
+    cell.className   = "cell";
+    if(revealedLetters[i]) cell.classList.add("correct");
+  }
+}
+
+// messaging
+function showMessage(msg){ messageEl.textContent=msg; }
+
+// keyboard
+function addKey(row,key,cls=""){
+  const btn=document.createElement("button");
+  btn.textContent=key.toUpperCase();
+  btn.className=cls?`key ${cls}`:"key";
+  if(/^[A-Z]$/.test(key.toUpperCase())) btn.id=`key-${key.toUpperCase()}`;
+  btn.onclick=()=>handleKey(key);
+  row.appendChild(btn);
+}
+function buildKeyboard(){
+  const layout=["qwertyuiop","asdfghjkl","zxcvbnm"];
+  keyboard.innerHTML="";
+  layout.forEach((row,idx)=>{
+    const div=document.createElement("div");
+    div.className="keyboard-row";
+    if(idx===2) addKey(div,"Enter","wide");
+    row.split("").forEach(k=>addKey(div,k));
+    if(idx===2) addKey(div,"←","wide");
+    keyboard.appendChild(div);
+  });
+}
+
+// key handling
+function handleKey(k){
+  if(!gameActive) return;
+  if(k==="Enter"){
+    if(currentGuess.includes("")){ showMessage("Incomplete word"); return; }
+    checkGuess(); return;
+  }
+  if(k==="←"){
+    for(let i=4;i>=0;i--){
+      if(!revealedLetters[i]&&currentGuess[i]){
+        currentGuess[i]="";
+        break;
+      }
     }
-    coins -= 3;
-    updateScore();
-  } else {
-    showMessage("No removable letters left.");
+    updateBoard(); return;
   }
+  if(/^[a-zA-Z]$/.test(k)){
+    for(let i=0;i<5;i++){
+      if(!currentGuess[i]&&!revealedLetters[i]){
+        currentGuess[i]=k.toLowerCase();
+        break;
+      }
+    }
+    updateBoard();
+  }
+}
+
+// guess checking
+function checkGuess(){
+  const guess=currentGuess.join("").toUpperCase();
+  if(!validWords.has(guess)) return;
+  const freq={};
+  for(let c of targetWord) freq[c]=(freq[c]||0)+1;
+  const result=Array(5).fill("absent");
+  // correct
+  for(let i=0;i<5;i++){
+    if(guess[i]===targetWord[i]){
+      result[i]="correct"; freq[guess[i]]--;
+    }
+  }
+  // present
+  for(let i=0;i<5;i++){
+    if(result[i]==="correct") continue;
+    if(freq[guess[i]]>0){
+      result[i]="present"; freq[guess[i]]--;
+    }
+  }
+  // apply
+  for(let i=0;i<5;i++){
+    const cell=board.children[currentRow*5+i];
+    const keyBtn=document.getElementById(`key-${guess[i]}`);
+    cell.classList.add(result[i]);
+    if(keyBtn&&!keyBtn.classList.contains("correct")){
+      keyBtn.classList.remove("present","absent");
+      keyBtn.classList.add(result[i]);
+    }
+  }
+  // win
+  if(guess===targetWord){
+    const reward=maxGuesses-currentRow;
+    coins+=reward; updateScore();
+    showMessage(`Correct! +${reward} coins`);
+    gameActive=false;
+    nextBtn.style.display="block";
+    return;
+  }
+  // next row or end
+  currentRow++;
+  if(currentRow>=maxGuesses){
+    attemptsLeft--; saveDailyAttempts(); updateAttempts();
+    messageEl.innerHTML=
+      `Out of guesses! Word was <span class="reveal-word">${targetWord}</span>`;
+    gameActive=false;
+    nextBtn.style.display="block";
+    return;
+  }
+  currentGuess=["","","","",""];
+  revealedLetters={};
+  updateBoard();
+}
+
+// hints
+revealBtn.onclick=()=>{
+  if(coins<hintCosts.reveal){ showMessage("Not enough coins."); return; }
+  const spots=[];
+  for(let i=0;i<5;i++) if(!revealedLetters[i]) spots.push(i);
+  if(!spots.length) return;
+  const idx=spots[Math.floor(Math.random()*spots.length)];
+  revealedLetters[idx]=true;
+  currentGuess[idx]=targetWord[idx].toLowerCase();
+  updateBoard();
+  coins-=hintCosts.reveal; updateScore();
 };
 
-// Start Game
-initBoard();
-buildKeyboard();
-updateBoard();
-updateScore();
-updateAttempts();
+removeBtn.onclick=()=>{
+  if(coins<hintCosts.remove){ showMessage("Not enough coins."); return; }
+  const wrong=Array.from(document.querySelectorAll(".key"))
+    .filter(b=>/^[A-Z]$/.test(b.textContent)&&
+                !targetWord.includes(b.textContent)&&
+                !b.classList.contains("absent"));
+  if(!wrong.length){ showMessage("No removable letters left."); return; }
+  const btn=wrong[Math.floor(Math.random()*wrong.length)];
+  btn.classList.add("absent"); btn.disabled=true;
+  coins-=hintCosts.remove; updateScore();
+};
+
+refillBtn.onclick=()=>{
+  if(coins<hintCosts.refill){ showMessage("Not enough coins."); return; }
+  if(attemptsLeft>=maxDailyAttempts){ showMessage("Attempts are full!"); return; }
+  coins-=hintCosts.refill; attemptsLeft++;
+  saveDailyAttempts(); updateScore(); updateAttempts();
+  showMessage("One attempt replenished!");
+};
+
+// next-word
+nextBtn.onclick=nextWord;
+function nextWord(){
+  targetWord=pickWord();
+  currentGuess=["","","","",""];
+  currentRow=0;
+  // attemptsLeft persists
+  revealedLetters={};
+  gameActive=true;
+  initBoard(); buildKeyboard();
+  updateBoard(); updateScore(); updateAttempts();
+  messageEl.textContent="";
+  nextBtn.style.display="none";
+}
+
+// physical keyboard
+window.addEventListener("keydown",e=>{
+  if(e.key==="Enter") handleKey("Enter");
+  else if(e.key==="Backspace") handleKey("←");
+  else if(/^[a-zA-Z]$/.test(e.key)) handleKey(e.key);
+});
