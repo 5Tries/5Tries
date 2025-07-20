@@ -1,0 +1,25 @@
+{
+  "realm": "Food & Drinks",
+  "quests": [
+    {
+      "name": "Garden Bites",
+      "words": ["apple", "beets", "chard", "cider", "cress", "dates", "guava", "leeks", "melon", "onion"]
+    },
+    {
+      "name": "Fruit Splash",
+      "words": ["grape", "peach", "plums", "lyche", "mango", "papaw", "pears", "kiwis", "prune", "guava"]
+    },
+    {
+      "name": "Juicy Drops",
+      "words": ["cacao", "cigua", "feijo", "lucma", "mirab", "nance", "nashi", "pomum", "pulpy", "cider"]
+    },
+    {
+      "name": "Savory Pantry",
+      "words": ["amole", "arbor", "carob", "chive", "kelps", "laver", "mooli", "olive", "pruno", "pluot"]
+    },
+    {
+      "name": "Sweet Treats",
+      "words": ["berry", "jambu", "mammy", "mamey", "pomme", "basna", "daubo", "durio", "logan", "frond"]
+    }
+  ]
+}
