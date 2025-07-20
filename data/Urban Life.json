@@ -46,7 +46,7 @@
         "roads",
         "fence",
         "signs",
-        "drains"
+        "drain"
       ]
     },
     {
@@ -60,8 +60,8 @@
         "route",
         "drive",
         "pedal",
-        "taxi",
-        "tracks",
+        "taxis",
+        "track",
         "lanes"
       ]
     },
