@@ -1,24 +1,29 @@
 {
-  "realm": "Nature & Living Things",
+  "realm": "🌿 Nature & Living Things",
   "quests": [
     {
       "title": "Shades of Earth",
+      "hint": "Warm and neutral colors inspired by soil, sky, and stone.",
       "words": ["amber", "azure", "beige", "black", "blush", "brown", "camel", "cedar", "clear", "coral"]
     },
     {
       "title": "Forest Hues",
+      "hint": "Deep, woody, and dusky tones found in the heart of nature.",
       "words": ["cocoa", "dusty", "ebony", "flame", "flesh", "foggy", "glaze", "grain", "green", "hazel"]
     },
     {
       "title": "Botanic Glow",
+      "hint": "Bright and soft shades from leaves, petals, and nature’s glow.",
       "words": ["honey", "ivory", "khaki", "lemon", "lilac", "linen", "matte", "mauve", "moody", "mossy"]
     },
     {
       "title": "Wild Creatures",
+      "hint": "Fierce and furry friends you might find roaming the wild.",
       "words": ["bears", "bison", "brood", "camel", "crabs", "dingo", "drake", "fawns", "finch", "frogs"]
     },
     {
       "title": "Animal Kingdom",
+      "hint": "Exotic and everyday animals that walk, hop, or fly.",
       "words": ["geese", "gnats", "horse", "hyena", "koala", "lemur", "minks", "moose", "otter", "panda"]
     }
   ]
