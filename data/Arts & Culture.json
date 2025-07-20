@@ -1,0 +1,85 @@
+{
+  "realm": "Arts & Culture",
+  "quests": [
+    {
+      "title": "Stage Lights",
+      "hint": "Words related to theater, film, and performance arts",
+      "words": [
+        "drama",
+        "actor",
+        "scene",
+        "props",
+        "debut",
+        "lines",
+        "sound",
+        "stage",
+        "cameo",
+        "score"
+      ]
+    },
+    {
+      "title": "Masterpiece",
+      "hint": "Terms tied to painting, sculpture, and fine art",
+      "words": [
+        "brush",
+        "paint",
+        "easel",
+        "inksy",
+        "still",
+        "stone",
+        "carve",
+        "frame",
+        "shape",
+        "glass"
+      ]
+    },
+    {
+      "title": "Written Word",
+      "hint": "Language, literature, and writing elements",
+      "words": [
+        "prose",
+        "books",
+        "genre",
+        "story",
+        "quote",
+        "essay",
+        "novel",
+        "theme",
+        "words",
+        "draft"
+      ]
+    },
+    {
+      "title": "Cultural Beats",
+      "hint": "Musical expressions and instruments from around the world",
+      "words": [
+        "notes",
+        "tempo",
+        "tabla",
+        "flute",
+        "tunes",
+        "chant",
+        "samba",
+        "beats",
+        "sound",
+        "chord"
+      ]
+    },
+    {
+      "title": "Global Icons",
+      "hint": "Famous people, cultural figures, and symbols",
+      "words": [
+        "mogul",
+        "crown",
+        "rebel",
+        "poet",
+        "stars",
+        "idolz",
+        "musee",
+        "saint",
+        "guide",
+        "voice"
+      ]
+    }
+  ]
+}
