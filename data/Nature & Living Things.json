@@ -1,0 +1,25 @@
+{
+  "realm": "Nature & Living Things",
+  "quests": [
+    {
+      "title": "Shades of Earth",
+      "words": ["amber", "azure", "beige", "black", "blush", "brown", "camel", "cedar", "clear", "coral"]
+    },
+    {
+      "title": "Forest Hues",
+      "words": ["cocoa", "dusty", "ebony", "flame", "flesh", "foggy", "glaze", "grain", "green", "hazel"]
+    },
+    {
+      "title": "Botanic Glow",
+      "words": ["honey", "ivory", "khaki", "lemon", "lilac", "linen", "matte", "mauve", "moody", "mossy"]
+    },
+    {
+      "title": "Wild Creatures",
+      "words": ["bears", "bison", "brood", "camel", "crabs", "dingo", "drake", "fawns", "finch", "frogs"]
+    },
+    {
+      "title": "Animal Kingdom",
+      "words": ["geese", "gnats", "horse", "hyena", "koala", "lemur", "minks", "moose", "otter", "panda"]
+    }
+  ]
+}
