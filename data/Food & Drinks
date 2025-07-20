@@ -1,0 +1,62 @@
+{
+  "Tropical Treats": [
+    "apple",
+    "cacao",
+    "guava",
+    "mango",
+    "melon",
+    "olive",
+    "peach",
+    "plums",
+    "prune",
+    "pulpy"
+  ],
+  "Herbal Bites": [
+    "anise",
+    "arbor",
+    "basil",
+    "chive",
+    "dills",
+    "flora",
+    "minty",
+    "pinks",
+    "plant",
+    "spice"
+  ],
+  "Juicy Picks": [
+    "grape",
+    "lemon",
+    "apple",
+    "peach",
+    "guava",
+    "melon",
+    "olive",
+    "plums",
+    "prune",
+    "pulpy"
+  ],
+  "Snack Garden": [
+    "beets",
+    "laver",
+    "leeks",
+    "lucma",
+    "mooli",
+    "nance",
+    "onion",
+    "pomum",
+    "pruno",
+    "cress"
+  ],
+  "Fragrant Sips": [
+    "cider",
+    "cigua",
+    "daubo",
+    "feijo",
+    "mirab",
+    "papaw",
+    "pomme",
+    "cacao",
+    "dates",
+    "calal"
+  ]
+}
