@@ -7,6 +7,31 @@
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
+  <!-- ======= TOP GAME BAR ======= -->
+  <div id="gameTopBar">
+    <span class="icon-row">
+      <span id="coinIcon" title="Coins">🪙</span>
+      <span id="progCoinVal">50</span>
+      <span id="attemptIcon" title="Attempts">🔁</span>
+      <span id="progAttemptVal">3</span>
+      <button id="progRefillBtn">Refill (10)</button>
+      <button id="progBuyCoinsBtn">Buy Coins</button>
+      <span id="leaderboardIcon" title="Leaderboard">🏆</span>
+      <span id="progressIcon" title="My Progress">📊</span>
+      <span id="shopIcon" title="Shop">🛒</span>
+    </span>
+  </div>
+
+  <!-- Username Modal -->
+  <div id="usernameModal" style="display:none;position:fixed;inset:0;z-index:2000;align-items:center;justify-content:center;background:rgba(0,0,0,0.7)">
+    <div style="background:#fff;padding:2em 1em 1.5em 1em;border-radius:12px;max-width:320px;text-align:center;box-shadow:0 8px 40px #0002">
+      <h3 style="margin-bottom:1em;">Enter your Name</h3>
+      <input id="usernameInput" type="text" placeholder="Your name" maxlength="12" style="margin-bottom:1em;width:90%;padding:0.5em;font-size:1.1em"/>
+      <br>
+      <button id="setUsernameBtn" style="padding:0.6em 1.5em;background:goldenrod;border:none;border-radius:7px;color:#fff;font-size:1em;cursor:pointer">OK</button>
+    </div>
+  </div>
+
   <!-- 1) LOADING SCREEN -->
   <div id="loadingScreen">
     <div class="loader-bar"><div id="loadingProgress"></div></div>
@@ -41,12 +66,10 @@
         <div class="pack-header">Urban Life <span class="lock">🔒</span></div>
         <div class="levels"></div>
       </section>
-
       <section class="pack locked">
         <div class="pack-header">World &amp; Travel <span class="lock">🔒</span></div>
         <div class="levels"></div>
       </section>
-
       <section class="pack locked">
         <div class="pack-header">Art’s &amp; Culture <span class="lock">🔒</span></div>
         <div class="levels"></div>
@@ -72,7 +95,7 @@
         <div id="attempts">🔁🔁🔁</div>
         <button id="backGameBtn" class="back-game-btn">← Back</button>
       </div>
-            <!-- NEW: Hint button + box under title -->
+      <!-- Hint button + box under title -->
       <button id="hintBtn" class="hint-btn">!</button>
       <div id="hintBox" class="hint-box" style="display:none;"></div>
       <div class="top-message">
