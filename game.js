@@ -1,25 +1,149 @@
-let currentQuestIdx = 0; // For tracking current quest number in pack
+// ================= USER PROFILE, LOGIN, DAILY REWARD ===================
+let username = localStorage.getItem('username') || '';
+let coins = parseInt(localStorage.getItem('coins'), 10) || 50;
+let attemptsLeft = parseInt(localStorage.getItem('attemptsLeft'), 10) || 3;
+let lastLogin = localStorage.getItem('lastLogin') || '';
+let firstInstall = !localStorage.getItem('firstInstall');
 
-// ─── 1) Word setup ─────────────────────────────────────────────────────────
-let words = [];
+// Username modal elements
+const usernameModal = document.getElementById('usernameModal');
+const usernameInput = document.getElementById('usernameInput');
+const setUsernameBtn = document.getElementById('setUsernameBtn');
 
-// ─── 2) Dictionary set ─────────────────────────────────────────────────────
+// Modal event for username
+if (!username) usernameModal.style.display = 'flex';
+setUsernameBtn.onclick = function() {
+  const val = usernameInput.value.trim();
+  if (val.length < 2) return alert('Name too short!');
+  username = val;
+  localStorage.setItem('username', username);
+  usernameModal.style.display = 'none';
+  updateStats();
+};
+if (username) usernameModal.style.display = 'none';
+
+// First install bonus
+if (firstInstall) {
+  coins = 50;
+  attemptsLeft = 3;
+  localStorage.setItem('coins', coins);
+  localStorage.setItem('attemptsLeft', attemptsLeft);
+  localStorage.setItem('firstInstall', 'done');
+}
+
+// Daily attempt reset & login bonus
+function checkDailyReset() {
+  const today = (new Date()).toDateString();
+  if (lastLogin !== today) {
+    attemptsLeft = 3;
+    coins += 10; // Daily login bonus
+    localStorage.setItem('coins', coins);
+    localStorage.setItem('attemptsLeft', attemptsLeft);
+    lastLogin = today;
+    localStorage.setItem('lastLogin', today);
+    alert('Daily login bonus! +10 coins & attempts reset.');
+  }
+}
+checkDailyReset();
+
+// ================== ECONOMY / SHOP / UI STATS ====================
+function updateStats() {
+  document.getElementById('progCoinVal').textContent = coins;
+  document.getElementById('progAttemptVal').textContent = attemptsLeft;
+  if (document.getElementById('score')) document.getElementById('score').textContent = '🪙 ' + coins;
+  if (document.getElementById('attempts')) document.getElementById('attempts').textContent = '🔁'.repeat(attemptsLeft);
+}
+
+// Coin → attempt conversion
+document.getElementById('progRefillBtn').onclick = function() {
+  if (coins >= 10 && attemptsLeft < 3) {
+    coins -= 10;
+    attemptsLeft += 1;
+    localStorage.setItem('coins', coins);
+    localStorage.setItem('attemptsLeft', attemptsLeft);
+    updateStats();
+    alert('+1 attempt for 10 coins!');
+  } else {
+    alert('Not enough coins or already at max attempts.');
+  }
+};
+
+// Buy coins button (placeholder for real IAP)
+document.getElementById('progBuyCoinsBtn').onclick = function() {
+  coins += 50;
+  localStorage.setItem('coins', coins);
+  updateStats();
+  alert('You bought 50 coins!');
+};
+
+// =============== PACKS/QUESTS/WORD DATA LOADING ==================
+const PACK_ORDER = [
+  "Starter Pack",
+  "Nature & Living Things",
+  "Food & Drinks",
+  "Urban Life",
+  "World & Travel",
+  "Art’s & Culture"
+];
+const PACK_SIZES = PACK_ORDER.reduce((m, p) => (m[p] = 5, m), {});
+const PACK_DATA_URL = {
+  "Starter Pack": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/Starter%20Pack.json",
+  "Nature & Living Things": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/Nature%20%26%20Living%20Things.json",
+  "Food & Drinks": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/Food%20%26%20Drinks.json",
+  "Urban Life": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/Urban%20Life.json",
+  "World & Travel": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/World%20%26%20Travel.json",
+  "Art’s & Culture": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/Arts%20%26%20Culture.json"
+};
+const packCache = {};
+let currentPack = '', currentQuestIdx = 0, words = [], usedWords = [];
 let validWords = new Set();
+let targetWord = '', currentGuess = ["", "", "", "", ""], currentRow = 0, revealedLetters = {}, gameActive = false;
+let guessesArr = [], resultsArr = [], currentHint = "";
 
-// ─── 3) Game config ────────────────────────────────────────────────────────
-const maxGuesses       = 5;
-const maxDailyAttempts = 3;
-const hintCosts        = { reveal: 5, remove: 3, refill: 10 };
-
-// --- Persistent coins ---
-function loadCoins() {
-  return parseInt(localStorage.getItem("coins"), 10) || 50;
+// ========== DICTIONARY LOAD ===============
+async function loadDictionary() {
+  const res = await fetch("https://cdn.jsdelivr.net/gh/5Tries/5Tries@main/words_alpha.txt");
+  const text = await res.text();
+  text.split("\n").forEach(raw => {
+    const w = raw.trim();
+    if (w.length === 5) validWords.add(w.toUpperCase());
+  });
 }
+
+// ========== LOADING / INITIALIZE ==========
+const loadingScreen     = document.getElementById("loadingScreen");
+const loadingProgress   = document.getElementById("loadingProgress");
+const startBtn          = document.getElementById("startBtn");
+const progressionScreen = document.getElementById("progressionScreen");
+const questScreen       = document.getElementById("questScreen");
+const gameContainer     = document.getElementById("gameContainer");
+const backBtn           = document.getElementById("backBtn");
+const backGameBtn       = document.getElementById("backGameBtn");
+const hintBtn           = document.getElementById("hintBtn");
+const hintBox           = document.getElementById("hintBox");
+const scoreEl           = document.getElementById("score");
+const attemptsEl        = document.getElementById("attempts");
+const revealBtn         = document.getElementById("revealLetterBtn");
+const removeBtn         = document.getElementById("removeLetterBtn");
+const refillBtn         = document.getElementById("refillAttemptBtn");
+const nextBtn           = document.getElementById("nextWordBtn");
+const board             = document.getElementById("board");
+const keyboard          = document.getElementById("keyboard");
+const messageEl         = document.getElementById("message");
+
+// Persistent coins, attempts helpers
 function saveCoins(val) {
+  coins = val;
   localStorage.setItem("coins", val);
+  updateStats();
+}
+function saveAttempts(val) {
+  attemptsLeft = val;
+  localStorage.setItem("attemptsLeft", val);
+  updateStats();
 }
 
-// --- Per-quest progress system ---
+// === Per-quest progress system ===
 function questKey(pack, quest) {
   return `progress_${pack}_q${quest}`;
 }
@@ -35,127 +159,41 @@ function isQuestComplete(pack, quest) {
 function isQuestUnlocked(pack, quest) {
   return quest === 0 || isQuestComplete(pack, quest - 1);
 }
-
-// Completed board state storage
-function saveCompletedBoard(pack, quest, guesses, results, row) {
-  localStorage.setItem(
-    `completedBoard_${pack}_${quest}`,
-    JSON.stringify({ guesses, results, row })
-  );
+function usedWordsKey(pack, quest) { return `usedWords_${pack}_q${quest}`; }
+function loadUsedWords(pack, quest) {
+  let arr = [];
+  try { arr = JSON.parse(localStorage.getItem(usedWordsKey(pack, quest))) || []; } catch {}
+  return arr;
 }
-function clearCompletedBoard(pack, quest) {
-  localStorage.removeItem(`completedBoard_${pack}_${quest}`);
-}
-function loadCompletedBoard(pack, quest) {
-  const val = localStorage.getItem(`completedBoard_${pack}_${quest}`);
-  return val ? JSON.parse(val) : null;
-}
+function saveUsedWords(pack, quest, arr) { localStorage.setItem(usedWordsKey(pack, quest), JSON.stringify(arr)); }
 
-// ─── 4) Pack order & sizes ─────────────────────────────────────────────────
-const PACK_ORDER = [
-  "Starter Pack",
-  "Nature & Living Things",
-  "Food & Drinks",
-  "Urban Life",
-  "World & Travel",
-  "Art’s & Culture"
-];
-const PACK_SIZES = PACK_ORDER.reduce((m, p) => (m[p] = 5, m), {});
-
-// ─── 5) Pack JSON URLs & cache ─────────────────────────────────────────────
-const PACK_DATA_URL = {
-  "Starter Pack": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/Starter%20Pack.json", 
-  "Nature & Living Things": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/Nature%20%26%20Living%20Things.json",
-  "Food & Drinks": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/Food%20%26%20Drinks.json",
-  "Urban Life": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/Urban%20Life.json",
-  "World & Travel": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/World%20%26%20Travel.json",
-  "Art’s & Culture": "https://raw.githubusercontent.com/5Tries/5Tries/main/data/Arts%20%26%20Culture.json"
-};
-const packCache = {};
-
-// ─── 6) Game state ─────────────────────────────────────────────────────────
-let targetWord, currentGuess, currentRow, attemptsLeft, coins;
-let revealedLetters, gameActive, currentPack = "", currentHint = "";
-let guessesArr = [];      // To save past guesses for completed board state
-let resultsArr = [];
-let leavingMidGame = false; // Used for exit warning
-
-// ─── 7) DOM refs ───────────────────────────────────────────────────────────
-const board             = document.getElementById("board");
-const keyboard          = document.getElementById("keyboard");
-const messageEl         = document.getElementById("message");
-const scoreEl           = document.getElementById("score");
-const attemptsEl        = document.getElementById("attempts");
-const revealBtn         = document.getElementById("revealLetterBtn");
-const removeBtn         = document.getElementById("removeLetterBtn");
-const refillBtn         = document.getElementById("refillAttemptBtn");
-const nextBtn           = document.getElementById("nextWordBtn");
-const startBtn          = document.getElementById("startBtn");
-const loadingScreen     = document.getElementById("loadingScreen");
-const loadingProgress   = document.getElementById("loadingProgress");
-const progressionScreen = document.getElementById("progressionScreen");
-const questScreen       = document.getElementById("questScreen");
-const backBtn           = document.getElementById("backBtn");
-const gameContainer     = document.getElementById("gameContainer");
-const backGameBtn       = document.getElementById("backGameBtn");
-const hintBtn           = document.getElementById("hintBtn");
-const hintBox           = document.getElementById("hintBox");
-
-// ─── 8) Load 5‑letter dictionary ──────────────────────────────────────────
-async function loadDictionary() {
-  const res = await fetch("https://cdn.jsdelivr.net/gh/5Tries/5Tries@main/words_alpha.txt");
-  const text = await res.text();
-  text.split("\n").forEach(raw => {
-    const w = raw.trim();
-    if (w.length === 5) validWords.add(w.toUpperCase());
-  });
-}
-
-// ─── 9) Daily attempts persistence ────────────────────────────────────────
-function loadDailyAttempts() {
-  const last = localStorage.getItem("lastReset"), now = Date.now();
-  if (!last || now - new Date(last).getTime() >= 24 * 60 * 60 * 1000) {
-    attemptsLeft = maxDailyAttempts;
-    localStorage.setItem("lastReset", new Date().toISOString());
-  } else {
-    const s = parseInt(localStorage.getItem("attemptsLeft"), 10);
-    attemptsLeft = isNaN(s) ? maxDailyAttempts : s;
-  }
-  localStorage.setItem("attemptsLeft", attemptsLeft);
-}
-function saveDailyAttempts() {
-  localStorage.setItem("attemptsLeft", attemptsLeft);
-}
-
-// ─── 10) Pick a random target word ─────────────────────────────────────────
-function pickWord() {
-  return words[Math.floor(Math.random() * words.length)];
-}
-
-// ─── 11) Prepare game & pack UI ─────────────────────────────────────────────
+// ======= INITIALIZE =======
 async function prepareGame() {
   await loadDictionary();
   loadingProgress.style.width = "100%";
-  loadDailyAttempts();
-  coins = loadCoins();
+  updateStats();
   unlockPacksBasedOnCompletion();
   updatePackLevelsUI();
   startBtn.style.display = "block";
 }
 prepareGame();
 
-// ─── 12) Render pack/quest progress circles dynamically ────────────────────
+startBtn.onclick = function() {
+  loadingScreen.style.display = "none";
+  progressionScreen.style.display = "flex";
+  updatePackLevelsUI();
+};
+
+// ========== PACK/QUEST UI LOGIC ==========
 function updatePackLevelsUI() {
   document.querySelectorAll(".pack").forEach((sec, idx) => {
     const packName = PACK_ORDER[idx];
     const levels = sec.querySelector(".levels");
-    levels.innerHTML = ""; // Clear old
-
+    levels.innerHTML = "";
     for (let q = 0; q < 5; q++) {
       const progress = loadQuestProgress(packName, q);
       const unlocked = isQuestUnlocked(packName, q) && (idx === 0 || isPackUnlocked(idx));
       const complete = progress >= 10;
-
       const span = document.createElement("span");
       span.className = "level";
       if (!unlocked) {
@@ -168,8 +206,6 @@ function updatePackLevelsUI() {
         span.classList.add("unlocked");
         span.innerHTML = `<span class="level-progress">${progress}/10</span>`;
       }
-
-      // Only add click for unlocked/incomplete
       if (unlocked && !complete) {
         span.onclick = () => {
           currentPack = packName;
@@ -177,10 +213,9 @@ function updatePackLevelsUI() {
           fetchAndStartQuest(packName, q);
         };
       }
-
       levels.appendChild(span);
     }
-    // Pack lock state for styling
+    // Pack lock state
     if (!isPackUnlocked(idx)) {
       sec.classList.add("locked");
       sec.classList.remove("unlocked");
@@ -205,56 +240,71 @@ function fetchAndStartQuest(packName, questIdx) {
     }
     const q = packCache[packName].quests[questIdx];
     words       = q.words.map(w => w.toUpperCase());
+    usedWords   = loadUsedWords(packName, questIdx);
     currentHint = q.hint || "";
     questScreen.style.display = "none";
+    if (attemptsLeft <= 0) {
+      showMessage("You are out of attempts! Use 'Refill Attempt' or come back tomorrow.");
+      showReturnToTheme();
+      return;
+    }
     startGame();
   })();
 }
 
-// ─── 13) Back handlers (w/ warning if mid-game) ────────────────────────────
+function showReturnToTheme() {
+  nextBtn.textContent = "Return to Theme Menu";
+  nextBtn.style.display = "block";
+  nextBtn.onclick = function() {
+    gameContainer.style.display = "none";
+    progressionScreen.style.display = "flex";
+    updatePackLevelsUI();
+    nextBtn.textContent = "Next Word";
+    nextBtn.onclick = nextWordHandler;
+  };
+}
 backBtn.addEventListener("click", () => {
-  questScreen.style.display       = "none";
+  questScreen.style.display = "none";
   progressionScreen.style.display = "flex";
   updatePackLevelsUI();
 });
 backGameBtn.addEventListener("click", () => {
-  // If game is active and user already started guessing, warn & penalize
   if (gameActive && (currentRow > 0 || currentGuess.some(l => l))) {
     if (confirm("Leaving now will lose an attempt. Continue?")) {
       attemptsLeft--;
-      saveDailyAttempts();
-      gameActive = false; // To prevent re-trigger
-      saveCoins(coins); // Do not reset coins!
+      saveAttempts(attemptsLeft);
+      gameActive = false;
       showMessage("Left early. Attempt lost!");
-      updateAttempts();
-      // Optionally, you may want to save the grid as "failed"/completed
       markWordComplete();
-      saveCompletedBoard(currentPack, currentQuestIdx, guessesArr, resultsArr, currentRow-1);
       gameContainer.style.display = "none";
       progressionScreen.style.display = "flex";
       updatePackLevelsUI();
+      updateStats();
     }
     return;
   }
-  gameContainer.style.display     = "none";
+  gameContainer.style.display = "none";
   progressionScreen.style.display = "flex";
   updatePackLevelsUI();
 });
 
-// ─── 14) Start → show pack list ────────────────────────────────────────────
-startBtn.addEventListener("click", () => {
-  loadingScreen.style.display     = "none";
-  progressionScreen.style.display = "flex";
-  updatePackLevelsUI();
-});
-
-// ─── 15) Start game UI (with restore last-completed) ───────────────────────
 function startGame() {
   progressionScreen.style.display = "none";
-  questScreen.style.display       = "none";
-  gameContainer.style.display     = "block";
+  questScreen.style.display = "none";
+  gameContainer.style.display = "block";
+  usedWords       = loadUsedWords(currentPack, currentQuestIdx);
 
-  coins           = loadCoins();
+  // All words completed
+  if (loadQuestProgress(currentPack, currentQuestIdx) >= 10 || usedWords.length >= words.length) {
+    showMessage("All words in this quest completed!");
+    nextBtn.style.display = "none";
+    gameActive = false;
+    initBoard();
+    buildKeyboard();
+    updateStats();
+    return;
+  }
+
   targetWord      = pickWord();
   currentGuess    = ["", "", "", "", ""];
   currentRow      = 0;
@@ -262,59 +312,16 @@ function startGame() {
   gameActive      = true;
   guessesArr      = [];
   resultsArr      = [];
-
   hintBtn.style.display = currentHint ? "inline-block" : "none";
   hintBox.style.display = "none";
   hintBox.textContent   = "";
-
-  // Try to restore last completed board
-  const completed = loadCompletedBoard(currentPack, currentQuestIdx);
-  if (completed) {
-    renderCompletedBoard(completed);
-    gameActive = false;
-    nextBtn.style.display = "block";
-    updateScore();
-    updateAttempts();
-    return;
-  }
-
   initBoard();
   buildKeyboard();
   updateBoard();
-  updateScore();
-  updateAttempts();
+  updateStats();
 }
 
-function renderCompletedBoard(completed) {
-  board.innerHTML = "";
-  for (let r = 0; r <= completed.row; r++) {
-    for (let c = 0; c < 5; c++) {
-      const cell = document.createElement("div");
-      cell.className = "cell";
-      cell.textContent = completed.guesses[r][c] || "";
-      if (completed.results[r][c]) cell.classList.add(completed.results[r][c]);
-      board.appendChild(cell);
-    }
-  }
-  // Fill out rest of board (empty rows)
-  for (let i = (completed.row + 1) * 5; i < 25; i++) {
-    const cell = document.createElement("div");
-    cell.className = "cell";
-    board.appendChild(cell);
-  }
-}
-
-// ─── 16) Hint toggle ───────────────────────────────────────────────────────
-hintBtn.addEventListener("click", () => {
-  if (hintBox.style.display === "block") hintBox.style.display = "none";
-  else {
-    hintBox.innerHTML = `<button class="close-btn">&times;</button>${currentHint}`;
-    hintBox.style.display = "block";
-    hintBox.querySelector(".close-btn").onclick = () => hintBox.style.display = "none";
-  }
-});
-
-// ─── 17) Build 5×5 board ───────────────────────────────────────────────────
+// ========== BOARD/KEYBOARD LOGIC ==========
 function initBoard() {
   board.innerHTML = "";
   for (let i = 0; i < 25; i++) {
@@ -323,12 +330,6 @@ function initBoard() {
     board.appendChild(c);
   }
 }
-
-// ─── 18) Update stats ─────────────────────────────────────────────────────
-function updateScore()   { scoreEl.textContent = `🪙 ${coins}`; }
-function updateAttempts(){ attemptsEl.textContent = "🔁".repeat(attemptsLeft); }
-
-// ─── 19) Render current guess ─────────────────────────────────────────────
 function updateBoard() {
   for (let i = 0; i < 5; i++) {
     const cell = board.children[currentRow * 5 + i];
@@ -337,19 +338,11 @@ function updateBoard() {
     if (revealedLetters[i]) cell.classList.add("correct");
   }
 }
-
-// ─── 20) Show a message ───────────────────────────────────────────────────
-function showMessage(msg) {
-  messageEl.textContent = msg;
-}
-
-// ─── 21) On‑screen keyboard ───────────────────────────────────────────────
 function addKey(row, key, cls="") {
   const btn = document.createElement("button");
   btn.textContent = key.toUpperCase();
   btn.className = cls ? `key ${cls}` : "key";
-  if (/^[A-Z]$/.test(key.toUpperCase()))
-    btn.id = `key-${key.toUpperCase()}`;
+  if (/^[A-Z]$/.test(key.toUpperCase())) btn.id = `key-${key.toUpperCase()}`;
   btn.onclick = () => handleKey(key);
   row.appendChild(btn);
 }
@@ -365,8 +358,6 @@ function buildKeyboard() {
     keyboard.appendChild(div);
   });
 }
-
-// ─── 22) Handle key input ─────────────────────────────────────────────────
 function handleKey(k) {
   if (!gameActive) return;
   if (k === "Enter") {
@@ -398,16 +389,19 @@ function handleKey(k) {
   }
 }
 
-// ─── 23) Check guess & coloring ───────────────────────────────────────────
+// ========== GUESS/CHECKING LOGIC ==========
+function pickWord() {
+  let unused = words.filter(w => !usedWords.includes(w));
+  if (!unused.length) return null;
+  return unused[Math.floor(Math.random() * unused.length)];
+}
 function checkGuess() {
   const guess = currentGuess.join("").toUpperCase();
-  if (!validWords.has(guess)) return;  // silently ignore non-valid words
+  if (!validWords.has(guess)) { showMessage("Not a valid word"); return; }
 
-  // frequency map for targetWord
+  // Coloring/feedback logic
   const freq = {};
   for (let c of targetWord) freq[c] = (freq[c] || 0) + 1;
-
-  // first pass: correct letters in correct position
   const result = Array(5).fill("absent");
   for (let i = 0; i < 5; i++) {
     if (guess[i] === targetWord[i]) {
@@ -415,7 +409,6 @@ function checkGuess() {
       freq[guess[i]]--;
     }
   }
-  // second pass: correct letters in wrong position
   for (let i = 0; i < 5; i++) {
     if (result[i] !== "correct" && freq[guess[i]] > 0) {
       result[i] = "present";
@@ -423,17 +416,13 @@ function checkGuess() {
     }
   }
 
-  // Save this guess/result for the completed board, if finished
   guessesArr.push(currentGuess.map(l => l.toUpperCase()));
   resultsArr.push([...result]);
-
-  // update board tiles
   for (let i = 0; i < 5; i++) {
     const cell = board.children[currentRow * 5 + i];
     cell.classList.add(result[i]);
   }
-
-  // update keyboard keys: only upgrade, never downgrade
+  // Keyboard color feedback
   const keyStatus = {};
   for (let i = 0; i < 5; i++) {
     const ltr = guess[i];
@@ -453,43 +442,60 @@ function checkGuess() {
       btn.classList.add(keyStatus[ltr]);
     }
   }
-
-  // win condition: word guessed correctly
+  // WIN
   if (guess === targetWord) {
+    if (!usedWords.includes(targetWord)) {
+      usedWords.push(targetWord);
+      saveUsedWords(currentPack, currentQuestIdx, usedWords);
+    }
     markWordComplete();
     unlockPacksBasedOnCompletion();
     updatePackLevelsUI();
-    coins = loadCoins() + (maxGuesses - currentRow); // Add reward
+    // Coins reward by try
+    let reward = 5 - currentRow;
+    coins += reward;
     saveCoins(coins);
-    updateScore();
-    showMessage(`Correct! +${maxGuesses - currentRow} coins`);
+    showMessage(`Correct! +${reward} coins`);
     gameActive = false;
-    nextBtn.style.display = "block";
-    saveCompletedBoard(currentPack, currentQuestIdx, guessesArr, resultsArr, currentRow);
+    nextBtn.textContent = "Next Word";
+    nextBtn.style.display = (loadQuestProgress(currentPack, currentQuestIdx) < 10 && attemptsLeft > 0) ? "block" : "none";
+    if (loadQuestProgress(currentPack, currentQuestIdx) >= 10 || usedWords.length >= words.length) {
+      showMessage("All words in this quest completed!");
+      showReturnToTheme();
+      gameActive = false;
+    }
     return;
   }
-
-  // if the guess was not correct, go to next row or mark failure
+  // FAIL
   currentRow++;
-  if (currentRow >= maxGuesses) {
+  if (currentRow >= 5) {
     attemptsLeft--;
-    saveDailyAttempts();
-    updateAttempts();
-    messageEl.innerHTML = `Out of guesses! Word was <span class="reveal-word">${targetWord}</span>`;
+    saveAttempts(attemptsLeft);
+    showMessage(`Out of guesses! Word was ${targetWord}`);
+    if (!usedWords.includes(targetWord)) {
+      usedWords.push(targetWord);
+      saveUsedWords(currentPack, currentQuestIdx, usedWords);
+    }
     markWordComplete();
     gameActive = false;
+    if (attemptsLeft <= 0) {
+      showMessage("Out of attempts! Come back tomorrow or refill.");
+      showReturnToTheme();
+      return;
+    }
+    if (loadQuestProgress(currentPack, currentQuestIdx) >= 10 || usedWords.length >= words.length) {
+      showMessage("All words in this quest completed!");
+      showReturnToTheme();
+      return;
+    }
+    nextBtn.textContent = "Next Word";
     nextBtn.style.display = "block";
-    saveCompletedBoard(currentPack, currentQuestIdx, guessesArr, resultsArr, currentRow-1);
     return;
   }
-
-  // prepare for the next guess
   currentGuess    = ["", "", "", "", ""];
   revealedLetters = {};
   updateBoard();
 }
-
-// ─── 24) Mark word complete (per-quest) ───────────────────────────────────
 function markWordComplete() {
   let progress = loadQuestProgress(currentPack, currentQuestIdx);
   if (progress < 10) {
@@ -497,10 +503,94 @@ function markWordComplete() {
   }
 }
 
-// ─── 25) Unlock packs based on quest completion ────────────────────────────
+// ========== HINT BUTTON/REVEAL/REMOVE ==========
+hintBtn.onclick = () => {
+  if (hintBox.style.display === "block") hintBox.style.display = "none";
+  else {
+    hintBox.innerHTML = `<button class="close-btn">&times;</button>${currentHint}`;
+    hintBox.style.display = "block";
+    hintBox.querySelector(".close-btn").onclick = () => hintBox.style.display = "none";
+  }
+};
+revealBtn.onclick = () => {
+  if (coins < 5) return alert("Not enough coins!");
+  const spots = [];
+  for (let i = 0; i < 5; i++) {
+    if (
+      !revealedLetters[i] &&
+      (!currentGuess[i] || currentGuess[i].toUpperCase() !== targetWord[i])
+    ) {
+      spots.push(i);
+    }
+  }
+  if (!spots.length) return alert("No more letters to reveal!");
+  const idx = spots[Math.floor(Math.random() * spots.length)];
+  revealedLetters[idx] = true;
+  currentGuess[idx] = targetWord[idx];
+  coins -= 5;
+  saveCoins(coins);
+  updateBoard();
+};
+removeBtn.onclick = () => {
+  if (coins < 3) return alert("Not enough coins!");
+  const wrong = Array.from(document.querySelectorAll(".key"))
+    .filter(b => /^[A-Z]$/.test(b.textContent) && !targetWord.includes(b.textContent) && !b.classList.contains("absent"));
+  if (!wrong.length) return alert("No letters to remove!");
+  const btn = wrong[Math.floor(Math.random() * wrong.length)];
+  btn.classList.add("absent");
+  btn.disabled = true;
+  coins -= 3;
+  saveCoins(coins);
+  updateStats();
+};
+refillBtn.onclick = () => {
+  if (coins < 10 || attemptsLeft >= 3) return alert("Not enough coins or already at max attempts.");
+  coins -= 10;
+  attemptsLeft++;
+  saveCoins(coins);
+  saveAttempts(attemptsLeft);
+  updateStats();
+};
+
+// ========== NEXT WORD HANDLER ==========
+function nextWordHandler() {
+  usedWords = loadUsedWords(currentPack, currentQuestIdx);
+  if (loadQuestProgress(currentPack, currentQuestIdx) >= 10 || usedWords.length >= words.length) {
+    showMessage("All words in this quest completed!");
+    nextBtn.style.display = "none";
+    gameActive = false;
+    initBoard();
+    buildKeyboard();
+    updateStats();
+    return;
+  }
+  targetWord      = pickWord();
+  currentGuess    = ["", "", "", "", ""];
+  currentRow      = 0;
+  revealedLetters = {};
+  gameActive      = true;
+  guessesArr      = [];
+  resultsArr      = [];
+  initBoard();
+  buildKeyboard();
+  updateBoard();
+  updateStats();
+  messageEl.textContent = "";
+  nextBtn.style.display = "none";
+}
+nextBtn.onclick = nextWordHandler;
+
+// ========== PHYSICAL KEYBOARD ==========
+window.addEventListener("keydown", e => {
+  if (e.key === "Enter") handleKey("Enter");
+  else if (e.key === "Backspace") handleKey("←");
+  else if (/^[a-zA-Z]$/.test(e.key)) handleKey(e.key);
+});
+
+// ========== UNLOCK/PROGRESSION ==========
 function unlockPacksBasedOnCompletion() {
   PACK_ORDER.forEach((pack, idx) => {
-    if (idx === 0) return; // Starter always unlocked
+    if (idx === 0) return;
     const prev = PACK_ORDER[idx - 1];
     const sec  = document.querySelector(`.pack:nth-child(${idx + 1})`);
     let prevDone = 0;
@@ -515,72 +605,13 @@ function unlockPacksBasedOnCompletion() {
   });
 }
 
-// ─── 26) Hints & economy ───────────────────────────────────────────────────
-revealBtn.onclick = () => {
-  if (coins < hintCosts.reveal) return;
-  const spots = [];
-  for (let i = 0; i < 5; i++) {
-    // Only reveal if not already filled with correct letter (either revealed or guessed by player)
-    if (
-      !revealedLetters[i] &&
-      (!currentGuess[i] || currentGuess[i].toUpperCase() !== targetWord[i])
-    ) {
-      spots.push(i);
-    }
-  }
-  if (!spots.length) return;
-  const idx = spots[Math.floor(Math.random() * spots.length)];
-  revealedLetters[idx] = true;
-  currentGuess[idx] = targetWord[idx];
-  updateBoard();
-  coins -= hintCosts.reveal;
-  saveCoins(coins);
-  updateScore();
-};
-removeBtn.onclick = () => {
-  if (coins < hintCosts.remove) return;
-  const wrong = Array.from(document.querySelectorAll(".key"))
-    .filter(b => /^[A-Z]$/.test(b.textContent) && !targetWord.includes(b.textContent) && !b.classList.contains("absent"));
-  if (!wrong.length) return;
-  const btn = wrong[Math.floor(Math.random() * wrong.length)];
-  btn.classList.add("absent");
-  btn.disabled = true;
-  coins -= hintCosts.remove;
-  saveCoins(coins);
-  updateScore();
-};
-refillBtn.onclick = () => {
-  if (coins < hintCosts.refill || attemptsLeft >= maxDailyAttempts) return;
-  coins -= hintCosts.refill;
-  saveCoins(coins);
-  attemptsLeft++;
-  saveDailyAttempts();
-  updateScore();
-  updateAttempts();
-};
+// ========== MESSAGE DISPLAY ==========
+function showMessage(msg) {
+  messageEl.textContent = msg;
+}
 
-// ─── 27) Next‑word ─────────────────────────────────────────────────────────
-nextBtn.onclick = () => {
-  clearCompletedBoard(currentPack, currentQuestIdx);
-  targetWord      = pickWord();
-  currentGuess    = ["", "", "", "", ""];
-  currentRow      = 0;
-  revealedLetters = {};
-  gameActive      = true;
-  guessesArr      = [];
-  resultsArr      = [];
-  initBoard();
-  buildKeyboard();
-  updateBoard();
-  updateScore();
-  updateAttempts();
-  messageEl.textContent = "";
-  nextBtn.style.display = "none";
+// ========== INITIALIZE ON LOAD ==========
+window.onload = function() {
+  updateStats();
+  updatePackLevelsUI();
 };
-
-// ─── 28) Physical keyboard input ─────────────────────────────────────────
-window.addEventListener("keydown", e => {
-  if (e.key === "Enter") handleKey("Enter");
-  else if (e.key === "Backspace") handleKey("←");
-  else if (/^[a-zA-Z]$/.test(e.key)) handleKey(e.key);
-});
