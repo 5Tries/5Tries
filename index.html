@@ -2,27 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>5 Tries</title>
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <!-- LOADING / START OVERLAY -->
+  <!-- 1) LOADING SCREEN -->
   <div id="loadingScreen">
-    <div class="loader-bar">
-      <div id="loadingProgress"></div>
-    </div>
-    <button id="startBtn" style="display:none;">Start</button>
+    <div class="loader-bar"><div id="loadingProgress"></div></div>
+    <button id="startBtn">Start</button>
   </div>
 
-  <!-- GAME UI (hidden until Start) -->
+  <!-- 2) PACK SELECTION (THEME QUEST) -->
+  <div id="progressionScreen">
+    <div class="progression">
+      <h2 class="progression-title">Theme Quest</h2>
+
+      <!-- Starter Pack (10 levels) -->
+      <section class="pack starter-pack unlocked">
+        <div class="pack-header">Starter Pack</div>
+        <div class="levels"></div>
+      </section>
+
+      <!-- Nature & Living Things (5 levels) -->
+      <section class="pack unlocked">
+        <div class="pack-header">Nature &amp; Living Things</div>
+        <div class="levels"></div>
+      </section>
+
+      <!-- Food & Drinks (5 levels) -->
+      <section class="pack unlocked">
+        <div class="pack-header">Food &amp; Drinks</div>
+        <div class="levels"></div>
+      </section>
+
+      <!-- Locked Packs -->
+      <section class="pack locked">
+        <div class="pack-header">Urban Life <span class="lock">🔒</span></div>
+        <div class="levels"></div>
+      </section>
+
+      <section class="pack locked">
+        <div class="pack-header">World &amp; Travel <span class="lock">🔒</span></div>
+        <div class="levels"></div>
+      </section>
+
+      <section class="pack locked">
+        <div class="pack-header">Art’s &amp; Culture <span class="lock">🔒</span></div>
+        <div class="levels"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- 3) QUEST SELECTION -->
+  <div id="questScreen">
+    <div class="quest-container">
+      <h3>Select a Quest</h3>
+      <ul class="quest-list"></ul>
+      <button id="backBtn" class="back-btn">← Back</button>
+    </div>
+  </div>
+
+  <!-- 4) GAME UI -->
   <div id="gameContainer" style="display:none;">
     <div class="container">
       <div class="stats">
         <h1 class="game-title">5🆃🆁🅸🅴🆂</h1>
         <div id="score">🪙 50</div>
         <div id="attempts">🔁🔁🔁</div>
+        <button id="backGameBtn" class="back-game-btn">← Back</button>
       </div>
+            <!-- NEW: Hint button + box under title -->
+      <button id="hintBtn" class="hint-btn">!</button>
+      <div id="hintBox" class="hint-box" style="display:none;"></div>
       <div class="top-message">
         <div id="message"></div>
         <button id="nextWordBtn" style="display:none;">Next Word</button>
